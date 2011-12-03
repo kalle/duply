@@ -1,0 +1,44 @@
+REQUIREMENTS
+
+duply needs duplicity. Install it or duply will be of no use for you.
+Most distributions have readymade packages available. I suggest _not_ to use
+these, because they generally lack behind duplicity development. If you 
+encounter errors using the distro's duplicity please doublecheck if the 
+version is outdated on http://duplicity.org.
+If so please try using the latest stable from the website before filing 
+bug reports or complaining in the mailing list.
+If you install duplicity from the website's tarball check chapter 
+"Requirements" on the mainpage first.
+
+
+INSTALLATION
+
+1. for convenience copy the file 'duply' somewhere into your path e.g. /bin 
+   or simply use it from anywhere in your file system
+2. doublecheck if the executable permission bits are set for all parties meant 
+   to use duply e.g. 'ls -la /path/to/duply'
+3. run 'duply usage' to get usage help
+
+
+TIP
+
+Sometimes a new version of duplicity has bugs. The default setup routine is not
+designed to install multiple versions of duplicity in parallel. But doing this 
+would allow you to go back to your working version of duplicity anytime. Here is
+how I do it. Change version and prefix to your preference.
+
+# install needed packages first
+python python-devel librsync-devel
+# download & extract
+wget http://.../duplicity-0.6.07.tar.gz
+tar xvf duplicity-0.6.07.tar.gz
+cd duplicity-0.6.07/
+# install into PREFIX
+PREFIX=~/_apps/duplicity-0.6.07 ; python setup.py install --prefix=$PREFIX --install-lib=$PREFIX
+# patch executable to find libs in PREFIX
+PREFIX=~/_apps/duplicity-0.6.07; cat $PREFIX/bin/duplicity | awk '1;/import getpass, gzip, os, sys, time, types/{print "sys.path.insert(1,sys.path[0] + \47/../\47)"}' > $PREFIX/bin/duplicity_mod && chmod 755 $PREFIX/bin/duplicity_mod && mv $PREFIX/bin/duplicity_mod $PREFIX/bin/duplicity
+
+If this works flawlessly than you will find the duplicity executable under
+$PREFIX/bin/duplicity
+
+To change the systemwide used duplicity symlink this to somewhere in your path.
