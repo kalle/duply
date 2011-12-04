@@ -282,11 +282,11 @@ function set_config { # sets config vars
   local CONFHOME_ETC="/etc/duply"
 
   # confdir can be delivered as path (must contain /)
-  if [ `echo $FTPLCFG | grep /` ] ; then 
+  if [ -n "`echo $FTPLCFG | grep /`" ] ; then
     CONFDIR=$(readlink -f $FTPLCFG 2>/dev/null || \
               ( echo $FTPLCFG|grep -v '^/' 1>/dev/null 2>&1 \
                && echo $(pwd)/${FTPLCFG} ) || \
-              echo ${FTPLCFG})          
+              echo ${FTPLCFG})
   # or DEFAULT in home/.duply folder (NEW)
   elif [ -d "${CONFHOME}" ]; then
     CONFDIR="${CONFHOME}/${FTPLCFG}"
@@ -496,7 +496,15 @@ function create_config {
   if [ ! -d "$CONFDIR" ] ; then
     mkdir -p "$CONFDIR" || error "Couldn't create config '$CONFDIR'."
   # create initial config file
-    cat <<EOF >"$CONF"
+    echo "DUPLY_CONFIG_PROTOTYPE = $DUPLY_CONFIG_PROTOTYPE"
+    if [ -n "$DUPLY_CONFIG_PROTOTYPE" ]; then
+        if [ -f "$DUPLY_CONFIG_PROTOTYPE" ]; then
+            source "$DUPLY_CONFIG_PROTOTYPE"
+        else
+            error "The configuration prototype file '$DUPLY_CONFIG_PROTOTYPE' is missing."
+        fi
+    else
+        cat <<EOF >"$CONF"
 # gpg encryption settings, simple settings:
 #  GPG_KEY='disabled' - disables encryption alltogether
 #  GPG_KEY='<key1>[,<key2>]'; GPG_PW='pass' - encrypt with keys, sign 
@@ -632,6 +640,7 @@ SOURCE='${DEFAULT_SOURCE}'
 #DUPL_PARAMS="\$DUPL_PARAMS --put_your_options_here " 
 
 EOF
+  fi
 
   # Hints on first usage
   cat <<EOF
