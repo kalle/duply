@@ -408,6 +408,9 @@ COMMANDS:
   incr       force incremental backup
   list [<age>]  
              list all files in backup (as it was at <age>, default: now)
+  candidates list all files that will go into a backup (without doing
+             a backup). This requires a special version of duplicity.
+             https://github.com/kalle/duplicity.
   status     prints backup sets and chains currently in repository
   verify     list files changed since latest backup
   purge [--force]  
@@ -1741,6 +1744,10 @@ case "$cmd" in
     # time param exists since 0.5.10+
     TIME="${ftpl_pars[0]:-now}"
     duplify list-current-files -- -t "$TIME" "${dupl_opts[@]}" "$BACKEND_URL"
+    ;;
+  candidates)
+    duplify list-candidate-files "${dupl_opts[@]}" \
+        --exclude-globbing-filelist "$EXCLUDE" "$SOURCE"
     ;;
   cleanup)
     duplify cleanup -- "${dupl_opts[@]}" "$BACKEND_URL"
